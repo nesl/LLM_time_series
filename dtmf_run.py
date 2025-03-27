@@ -368,14 +368,11 @@ def freq_pair(model, result_save_path):
     save_result(batch_results, result_save_path)
 
 if __name__ == "__main__":
-    # --- 1. 定义父解析器：所有函数都要有的参数 ---
+    # main parser and shared parameters
     parent_parser = argparse.ArgumentParser(add_help=False)
     parent_parser.add_argument('-m', '--model', choices=["gpt-4o", "o1-2024-12-17", "deepseek-reasoner"], help="Model (LLM) for this task")
     parent_parser.add_argument('-n', '--noise-type', required=True, choices=['noise', 'clean'], help="Choose to input tones with or with out noise. Choose from ['noise', 'clean']")
     parent_parser.add_argument('-r', '--result-save-filename', type=str, default=None, help="File name to save results.")
-
-    # main parser and shared parameters
-    parser = argparse.ArgumentParser(description="CLI with shared args for all functions")
     subparsers = parser.add_subparsers(dest="subcommand", required=True)
 
     # freq_text
