@@ -65,28 +65,28 @@ From the given responses, the models seem to know the correct method of DTMF cla
 | Frequency Text (w/ guidance) | - | 8.3 | 96.3 |
 | Frequency Plot | - | 25.8 | 36.2 |
 
-##### 1) Frequency Series in Text
+**1) Frequency Series in Text**
 First, we provide LLMs with raw frequency data in text. The input is a series of frequency-magnitude pairs in the format of *"frequency1: magnitude1, frequency2: magnitude2, ..."*. For example, the following series representing key "0" might look like: "12.5:3.30, 25.0:3.30, 37.5:3.30, ..., 912.5:64.33, 925.0:114.71, 937.5:525.26, 950.0:204.74, 962.5:85.96, 975.0:54.57, ...". To evaluate the models’ inherent reasoning capabilities, we first presented the data without any task-specific instructions or guidance. We then introduced prompts that provided step-by-step guidance to offer more contextual information and assist the models in the reasoning process. Here are the prompts:  
 
 **Without Guidance:**  
 ```
 You are an expertise in dual tone multi-frequency decoding. You are given a series of frequency components with corresponding amplitudes in the format of "frequency1:magnitude1, frequency2:magnitude2, ...". The frequency series represents a key (0-9, * or #). Please identify the key it refers to. Here is the frequency series:  {audio_data_template}
 Please provide your answer in the following JSON structure:  
-{{  
+{
     "key": "the recognized key",  
     "analysis": "a detailed explanation of your analysis process."  
-}}
+}
 ```
 
 **With Guidance:**  
 ```
 You are an expertise in dual tone multi-frequency decoding. You are given a series of frequency components with corresponding amplitudes in the format of "frequency1:magnitude1, frequency2:magnitude2, ...". The frequency series represents a key (0-9, * or #). **Please first recognize the frequencies with high magnitudes in this series.*Then, identify the key it refers to.** Here is the frequency series:  {audio_data_template}  
 Please provide your answer in the following JSON structure:  
-{{  
+{
     "frequencies": [list of high-magnitude frequencies as floating-point numbers rounded to two decimal places],  
     "key": "the recognized key",  
     "analysis": "a detailed explanation of your analysis process."  
-}}
+}
 ```
 
 To ensure a fair comparison, models were not required to explicitly extract frequency peaks in the unguided setting, avoiding any direct or indirect hints about the classification steps.
@@ -201,7 +201,7 @@ Overall, GPT-4o is subject to limitations of domain knowledge and poor robustnes
 
 [^2]: Please refer to [results_gpt4o_noise_freq_pair.csv](results/dtmf/results_gpt4o_noise_freq_pair.csv) for raw responses and analysis of GPT-4o given noised frequeny pair input.
 
-##### 2) Frequency Series Plot
+**2) Frequency Series Plot**
 The second experiment assessed the models' capability to recognize visual frequency plots. Similarily, the models are required to detect peaks in the plots first and then infer the corresponding key. The prompt is:
 ```
 You are an expertise in dual tone multi-frequency decoding. Please first recognize the exact frequencies of peaks in this plot. Then, identify the key it refers to.
@@ -499,10 +499,10 @@ Our results highlight several key insights:
 - Visual inputs, such as frequency plots and IMU signal graphs, provide modest gains for some models but reveal substantial limitations in LLMs' visual interpretation abilities, particularly in accurately identifying frequency peaks.
 - The addition of environment photos for HAR tasks enhances classification accuracy, underscoring the value of multimodal context.
 
-Despite their potential, current LLMs still struggle with precise signal interpretation, domain-specific reasoning, and visual pattern recognition. Future research can explore methods for integrating domain-specific knowledge into LLMs more effectively, such as fine-tuning, retrieval-augmented generation, or embedding external knowledge bases. Additionally, improving models’ robustness to noise and enhancing their ability to process subtle signal features will be critical. This project is only a prelimilary exploration of LLMs for time-series tasks, but it still provides some interesting insights. Expanding benchmarks to include a border range of time-series tasks (e.g., forecasting, anomaly detection) and evaluating models on cross-domain generalization could further deepen our understanding of LLMs’ potential in time-series analysis.
+Despite their potential, current LLMs still struggle with precise signal interpretation, domain-specific reasoning, and visual pattern recognition. Future research can explore methods for integrating domain-specific knowledge into LLMs more effectively, such as fine-tuning, retrieval-augmented generation, or embedding external knowledge bases. Additionally, improving models’ robustness to noise and enhancing their ability to process subtle signal features will be critical. This project is only a prelimilary exploration of LLMs for time-series tasks, but it still provides some interesting insights. Expanding benchmarks to include a border range of time-series tasks (e.g., forecasting, anomaly detection) and evaluating models on cross-domain generalization could further deepen our understanding of LLMs’ potential in time-series analysis.[^3]
 
 
-[^3] This report used ChatGPT for language polishment. All experimental results and analysis are original.
+[^3]: ChatGPT is used to polish language in this report. All experimental results and analysis are original.
 
 ## References
 <a id="1">[1]</a> Suvir Mirchandani, Fei Xia, Pete Florence, Brian Ichter, Danny Driess, Montserrat Gonzalez Arenas, Kanishka Rao, Dorsa Sadigh, and Andy Zeng. 2023. Large language models as general pattern machines. *arXiv preprint arXiv:2307.04721 (2023)*.  
