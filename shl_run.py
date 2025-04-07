@@ -11,8 +11,9 @@ import argparse
 from config.prompt_config import PromptConfigHAR
 import time
 
-client = None
-prompt_config_har = None
+CLIENT = None
+PROMPT_CONFIG_HAR = None
+DATA_FOLDER = None
 
 def save_result(batch_results: list, result_save_path: str):
     batch_df = pd.DataFrame(batch_results)
@@ -22,8 +23,8 @@ def save_result(batch_results: list, result_save_path: str):
 
 def time_text_classify(model, input_repre, result_save_path, data_num, location, freq):
     """ Input representations: time_text, time_text_fewshot, time_text_description """
-    data = pd.read_csv(f'./datasets/SHLDataset_preview_v1/User1/220617/{location}_Motion.txt', sep=' ', header=None)
-    labels_df = pd.read_csv(f'./datasets/SHL_processed/User1/220617/{location}_video/{location}_IMU_labels.csv', index_col='chunk_index')
+    data = pd.read_csv(os.path.join(DATA_FOLDER, f'{location}_Motion.txt'), sep=' ', header=None)
+    labels_df = pd.read_csv(os.path.join(DATA_FOLDER, f'{location}_IMU_labels.csv'), index_col='chunk_index')
     # no2label = ['Null', 'Still', 'Walking', 'Run', 'Bike', 'Car', 'Bus', 'Train', 'Subway']
     sampled_indices = []
     fewshot_dict = {}
@@ -72,19 +73,19 @@ def time_text_classify(model, input_repre, result_save_path, data_num, location,
         
         prompt = ""
         if input_repre == "time_text":
-            prompt = prompt_config_har.get_time_text_prompt(imu_data=formatted_data, model=model)
+            prompt = PROMPT_CONFIG_HAR.get_time_text_prompt(imu_data=formatted_data, model=model)
         elif input_repre == "time_text_fewshot":
-            prompt = prompt_config_har.get_time_text_fewshot_prompt(fewshot_data_dict=fewshot_dict, imu_data=formatted_data, model=model)
+            prompt = PROMPT_CONFIG_HAR.get_time_text_fewshot_prompt(fewshot_data_dict=fewshot_dict, imu_data=formatted_data, model=model)
         elif input_repre == "time_text_description":
             # Get description before classification for time_text_description
-            prompt_desc = prompt_config_har.get_time_text_description_step1_prompt(imu_data=formatted_data)
+            prompt_desc = PROMPT_CONFIG_HAR.get_time_text_description_step1_prompt(imu_data=formatted_data)
             # print("prompt for description:", prompt_desc)
             # input("Press Enter...")
             retry_cnt = 0
             err = ""
             while retry_cnt < 3:
                 try:
-                    imu_desc = client.chat.completions.create(
+                    imu_desc = CLIENT.chat.completions.create(
                         model=model,
                         messages=[{"role": "user", "content": prompt_desc}],
                     )
@@ -100,7 +101,7 @@ def time_text_classify(model, input_repre, result_save_path, data_num, location,
             if retry_cnt == 3:
                 raise RuntimeError(f"Failed after 3 trials: {err}")
             
-            prompt = prompt_config_har.get_time_text_description_step2_prompt(imu_desc=imu_desc, imu_data=formatted_data, model=model)
+            prompt = PROMPT_CONFIG_HAR.get_time_text_description_step2_prompt(imu_desc=imu_desc, imu_data=formatted_data, model=model)
         else:
             raise ValueError(f"{input_repre} is not supported in function `time_text_classify()`")
 
@@ -113,7 +114,7 @@ def time_text_classify(model, input_repre, result_save_path, data_num, location,
             err = ""
             while retry_cnt < 3:
                 try:
-                    response = client.chat.completions.create(
+                    response = CLIENT.chat.completions.create(
                         model=model,
                         messages=[{"role": "user", "content": prompt}],
                     )
@@ -131,7 +132,7 @@ def time_text_classify(model, input_repre, result_save_path, data_num, location,
             predicted_label = match.group(1) if match else ""
             analysis = result
         else:
-            response = client.chat.completions.create(
+            response = CLIENT.chat.completions.create(
                 model=model,
                 response_format={"type": "json_object"},
                 messages=[{"role": "user", "content": prompt}],
@@ -199,11 +200,13 @@ if __name__ == "__main__":
         required=True, help="Input representation. Choose from ['time_text', 'time_text_fewshot, 'time_text_description', 'time_plot', 'time_plot_few_shot', 'time_plot_env']"
     )
     parser.add_argument('-dm', '--data-num', type=int, default=30, help="Number of test data for each class")
+    parser.add_argument('-d', '--data-folder', type=str, default='./datasets/SHL_processed/User1/220617/Torso_video/', help="Data folder path.")
     parser.add_argument('-l', '--location', type=str, default='Torso', help="Location of IMU data collection smartphone.")
     parser.add_argument('-f', '--frequency', type=int, help="sample Frequency (unit: Hz). Default to 10 if --input is `time_text_fewshot`, otherwise default to 100.")
     parser.add_argument('-r', '--result-save-filename', type=str, default=None, help="File name to save results.")
     args = parser.parse_args()
 
+    DATA_FOLDER = args.data_folder
     # Set default sample frequency
     if args.frequency is None:
         if args.input in ["time_text_fewshot", "time_text_description"]:
@@ -212,14 +215,14 @@ if __name__ == "__main__":
             args.frequency = 100
 
     if args.model == "deepseek-reasoner":
-        client = OpenAI(
+        CLIENT = OpenAI(
             api_key=os.environ.get("DEEPSEEK_API_KEY"), base_url="https://api.deepseek.com"
         )
     else:
-        client = OpenAI(
+        CLIENT = OpenAI(
             api_key=os.environ.get("OPENAI_API_KEY"),
         )
-    prompt_config_har = PromptConfigHAR(location=args.location, freq=args.frequency)
+    PROMPT_CONFIG_HAR = PromptConfigHAR(location=args.location, freq=args.frequency)
     model_abbr = {
         "gpt-4o": "gpt4o",
         "o1-2024-12-17": "gpto1",
