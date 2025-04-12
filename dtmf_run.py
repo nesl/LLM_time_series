@@ -345,6 +345,6 @@ if __name__ == "__main__":
         "deepseek-reasoner": "dsr1"
     }
     if args.result_save_filename is None:
-        args.result_save_filename = f"TEST_results_{model_abbr[args.model]}_{args.noise_type}_{args.func.__name__}"
+        args.result_save_filename = f"results_{model_abbr[args.model]}_{args.noise_type}_{args.func.__name__}"
     print("args.result_save_filename:", args.result_save_filename)
     args.func(args)
