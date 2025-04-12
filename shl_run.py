@@ -10,6 +10,8 @@ import json
 import argparse
 from config.prompt_config import PromptConfigHAR
 import time
+import base64
+from PIL import Image
 
 CLIENT = None
 PROMPT_CONFIG_HAR = None
@@ -25,7 +27,6 @@ def time_text_classify(model, input_repre, result_save_path, data_num, location,
     """ Input representations: time_text, time_text_fewshot, time_text_description """
     data = pd.read_csv(os.path.join(DATA_FOLDER, f'{location}_Motion.txt'), sep=' ', header=None)
     labels_df = pd.read_csv(os.path.join(DATA_FOLDER, f'{location}_IMU_labels.csv'), index_col='chunk_index')
-    # no2label = ['Null', 'Still', 'Walking', 'Run', 'Bike', 'Car', 'Bus', 'Train', 'Subway']
     sampled_indices = []
     fewshot_dict = {}
 
@@ -43,16 +44,6 @@ def time_text_classify(model, input_repre, result_save_path, data_num, location,
             formatted_data = data_segment.apply(lambda col: ' '.join(col.astype(str)), axis=0)
             fewshot_dict[label] = formatted_data
 
-    ### TEMP: start from 60
-    sampled_indices = sampled_indices[90:]
-    print(sampled_indices)
-    # input("Press Enter...")
-    #######################
-
-    # print("Sampled indices:\n", sampled_indices)
-    # print("fewshot_dict:", fewshot_dict)
-    # input("Press Enter...")
-
     # Iterate over each row in the data
     batch_results = [] # Write into result file for each 10 results
     
@@ -63,11 +54,6 @@ def time_text_classify(model, input_repre, result_save_path, data_num, location,
         end_index = data.index[data[0] == end_timestamp]
         end_index = end_index.item()
 
-        """ !!! Modify shl_process.py!!! """
-        # if data.loc[start_index:end_index+1, 'label'].nunique() > 1:
-        #     print(f"Skipping segment {start_index}-{end_index} due to multiple labels")
-        #     continue
-        
         data_segment = data.iloc[start_index:end_index+1:(100 // freq), 1:10] # IMU data. Use 100 // freq to downsample to `freq`. Use `1:10` to extract IMU data in column 2-10.
         formatted_data = data_segment.apply(lambda col: ' '.join(col.astype(str)), axis=0)
         
@@ -79,8 +65,7 @@ def time_text_classify(model, input_repre, result_save_path, data_num, location,
         elif input_repre == "time_text_description":
             # Get description before classification for time_text_description
             prompt_desc = PROMPT_CONFIG_HAR.get_time_text_description_step1_prompt(imu_data=formatted_data)
-            # print("prompt for description:", prompt_desc)
-            # input("Press Enter...")
+
             retry_cnt = 0
             err = ""
             while retry_cnt < 3:
@@ -91,8 +76,6 @@ def time_text_classify(model, input_repre, result_save_path, data_num, location,
                     )
                     imu_desc = imu_desc.choices[0].message.content
                     break
-                    # print("DESCRIPTION:", imu_desc)
-                    # input("Press Enter...")
                 except Exception as e:
                     err = e
                     print(f"Trail {retry_cnt} failed: {e}. Retry...")
@@ -160,14 +143,6 @@ def time_text_classify(model, input_repre, result_save_path, data_num, location,
             **({'description': imu_desc} if input_repre == "time_text_description" else {})
         })
 
-        ## debug
-        # batch_results_keys = set()
-        # for entry in batch_results:
-        #     for key in entry:
-        #         batch_results_keys.add(key)
-        # print("batch_results:", batch_results_keys)
-        ########
-
         print(f"Chunk index: {idx}, Timestamp range: {start_timestamp}-{end_timestamp}, Predicted label: {predicted_label}, True label: {true_label}")
         # input("Press Enter to continue...")
 
@@ -180,9 +155,162 @@ def time_text_classify(model, input_repre, result_save_path, data_num, location,
         save_result(batch_results, result_save_path)
 
 
+def encode_image(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode("utf-8")
+
+
 def time_plot_classify(model, input_repre, result_save_path, data_num, location, freq):
-    """ Input Representations: "time_plot", "time_plot_few_shot", "time_plot_env" """
-    pass
+    """ Input Representations: "time_plot", "time_plot_fewshot", "time_plot_env" """
+    data = pd.read_csv(os.path.join(DATA_FOLDER, f'{location}_Motion.txt'), sep=' ', header=None)
+    labels_df = pd.read_csv(os.path.join(DATA_FOLDER, f'{location}_IMU_labels.csv'), index_col='chunk_index')
+    sampled_indices = []
+    fewshot_dict = {}
+
+    # For simplicity, only classify four labels: Still, Walking, Run, Car
+    for label in ['Still', 'Walking', 'Run', 'Car']:
+        filtered_indices = labels_df[labels_df['label_name'] == label].index[:data_num].tolist()
+        sampled_indices.extend(filtered_indices)
+        if input_repre == "time_plot_fewshot":
+            fewshot_idx = labels_df[labels_df['label_name'] == label].index[data_num]
+            fewshot_dict[label] = os.path.join(DATA_FOLDER, f'{fewshot_idx}_{location}_IMU_plot.png')
+
+    # print("Sampled indices:\n", sampled_indices)
+    # print("fewshot_dict:", fewshot_dict)
+    # input("Press Enter...")
+
+    # Iterate over each row in the data
+    batch_results = [] # Write into result file for each 10 results
+    
+    for idx in sampled_indices:  # DURATION seconds for each segment
+        img_path = os.path.join(DATA_FOLDER, f'{idx}_{location}_IMU_plot.png')
+        base64_image = encode_image(img_path)
+        
+        prompt = ""
+        if input_repre == "time_plot":
+            prompt = PROMPT_CONFIG_HAR.get_time_plot_prompt()
+            response = CLIENT.chat.completions.create(
+                model=model,
+                response_format={"type": "json_object"},
+                messages=[{
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{base64_image}"}
+                        }
+                    ]
+                }],
+            )
+        elif input_repre == "time_plot_fewshot":
+            # Get fewshot examples for each class
+            still_sample_img = encode_image(fewshot_dict['Still'])
+            walking_sample_img = encode_image(fewshot_dict['Walking'])
+            run_sample_img = encode_image(fewshot_dict['Run'])
+            car_sample_img = encode_image(fewshot_dict['Car'])
+            
+            prompt = PROMPT_CONFIG_HAR.get_time_plot_fewshot_prompt()
+            response = CLIENT.chat.completions.create(
+                model=model,
+                response_format={"type": "json_object"},
+                messages=[
+                            {
+                                "role": "user",
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": prompt
+                                    },
+                                    {
+                                        "type": "image_url",
+                                        "image_url": {"url": f"data:image/png;base64,{still_sample_img}"},
+                                    },
+                                    {
+                                        "type": "image_url",
+                                        "image_url": {"url": f"data:image/png;base64,{walking_sample_img}"},
+                                    },
+                                    {
+                                        "type": "image_url",
+                                        "image_url": {"url": f"data:image/png;base64,{run_sample_img}"},
+                                    },
+                                    {
+                                        "type": "image_url",
+                                        "image_url": {"url": f"data:image/png;base64,{car_sample_img}"},
+                                    },
+                                    {
+                                        "type": "image_url",
+                                        "image_url": {"url": f"data:image/png;base64,{base64_image}"},
+                                    },
+                                ]
+                            }
+                        ],
+            )
+        elif input_repre == "time_plot_env":
+            # Get environment photo
+            file_path_video = os.path.join(DATA_FOLDER, f'{idx}_video.png')
+            base64_image_env = encode_image(file_path_video)
+            
+            prompt = PROMPT_CONFIG_HAR.get_time_plot_env_prompt()
+            response = CLIENT.chat.completions.create(
+                model=model,
+                response_format={"type": "json_object"},
+                messages=[
+                            {
+                                "role": "user",
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": prompt
+                                    },
+                                    {
+                                        "type": "image_url",
+                                        "image_url": {"url": f"data:image/png;base64,{base64_image}"},
+                                    },
+                                    {
+                                        "type": "image_url",
+                                        "image_url": {"url": f"data:image/png;base64,{base64_image_env}"},
+                                    },
+                                ]
+                            }
+                        ],
+            )
+        else:
+            raise ValueError(f"{input_repre} is not supported in function `time_plot_classify()`")
+
+        # print(f"PROMPT FOR {input_repre}: {prompt}")
+        # input("Enter Press...")
+
+        result = response.choices[0].message.content
+        try:
+            result = json.loads(result)
+            predicted_label = result.get('label', "")
+            analysis = result.get('analysis', result)
+        except Exception as e:
+            print(f"ERROR: {filename_prefix} result json parsing failed: {e}")
+            predicted_label = ""
+            analysis = f"ERROR: {e}. Raw Response: {result}"
+
+        # print("Raw result:", result)
+
+        true_label = labels_df.loc[idx, 'label_name']
+        batch_results.append({
+            'chunk_index': idx,
+            'start_timestamp': labels_df.loc[idx, 'start_timestamp'],
+            'end_timestamp': labels_df.loc[idx, 'end_timestamp'],
+            'true_label': true_label,
+            'predicted_label': predicted_label,
+            'analysis': analysis
+        })
+
+        print(f"Chunk index: {idx}, Timestamp range: {labels_df.loc[idx, 'start_timestamp']}-{labels_df.loc[idx, 'end_timestamp']}, Predicted label: {predicted_label}, True label: {true_label}")
+        # input("Press Enter to continue...")
+
+        # Write to results file for every 10 data segment
+        if len(batch_results) >= 5:
+            save_result(batch_results, result_save_path)
+            batch_results = []
+
+    if len(batch_results) > 0:
+        save_result(batch_results, result_save_path)
 
     
 if __name__ == "__main__":
@@ -194,13 +322,13 @@ if __name__ == "__main__":
             "time_text_fewshot",
             "time_text_description",
             "time_plot",
-            "time_plot_few_shot",
+            "time_plot_fewshot",
             "time_plot_env"
         ], 
-        required=True, help="Input representation. Choose from ['time_text', 'time_text_fewshot, 'time_text_description', 'time_plot', 'time_plot_few_shot', 'time_plot_env']"
+        required=True, help="Input representation"
     )
-    parser.add_argument('-dm', '--data-num', type=int, default=30, help="Number of test data for each class")
-    parser.add_argument('-d', '--data-folder', type=str, default='./datasets/SHL_processed/User1/220617/Torso_video/', help="Data folder path.")
+    parser.add_argument('-dn', '--data-num', type=int, default=30, help="Number of test data for each class")
+    parser.add_argument('-df', '--data-folder', type=str, default='./datasets/SHL_processed/User1/220617/Torso_video/', help="Data folder path.")
     parser.add_argument('-l', '--location', type=str, default='Torso', help="Location of IMU data collection smartphone.")
     parser.add_argument('-f', '--frequency', type=int, help="sample Frequency (unit: Hz). Default to 10 if --input is `time_text_fewshot`, otherwise default to 100.")
     parser.add_argument('-r', '--result-save-filename', type=str, default=None, help="File name to save results.")
@@ -229,7 +357,7 @@ if __name__ == "__main__":
         "deepseek-reasoner": "dsr1"
     }
     if args.result_save_filename is None:
-        args.result_save_filename = f"results_{model_abbr[args.model]}_User1_220617_{args.data_num*4}_{args.location}_{args.input}_4class.csv"
+        args.result_save_filename = f"TEST_results_{model_abbr[args.model]}_User1_220617_{args.data_num*4}_{args.location}_{args.input}_4class.csv"
     result_save_path = os.path.join("./results/HAR", args.result_save_filename)
     
     ## debug
@@ -240,7 +368,7 @@ if __name__ == "__main__":
     
     if args.input in ["time_text", "time_text_fewshot", "time_text_description"]:
         time_text_classify(model=args.model, input_repre=args.input, result_save_path=result_save_path, data_num=args.data_num, location=args.location, freq=args.frequency)
-    elif args.input in ["time_plot", "time_plot_few_shot", "time_plot_env"]:
-        time_plot_classify(model=args.model, input_repre=args.input, result_save_path=result_save_path, location=args.location, freq=args.freq)
+    elif args.input in ["time_plot", "time_plot_fewshot", "time_plot_env"]:
+        time_plot_classify(model=args.model, input_repre=args.input, result_save_path=result_save_path, data_num=args.data_num, location=args.location, freq=args.frequency)
     else:
         raise ValueError(f"{args.input} is not supported")
