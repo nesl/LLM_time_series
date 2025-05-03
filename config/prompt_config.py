@@ -256,3 +256,14 @@ class PromptConfigHAR:
             """) +
             self.get_response_format_prompt(model="gpt-4o")
         )
+    
+    def get_env_only_prompt(self):
+        """Generate prompt for IMU time series plot with environmental photo taken during the user's transportation."""
+        return (
+            textwrap.dedent(f"""
+                You are an expert in human activity analysis. You are given an envorinment photo taken during a person's transportation by a camera placed in their torso.
+                The person's transportation method belongs to one of the following categories: Still, Walking, Run, Car.
+                Could you please tell me what transportation method the person was using based on the given information and the environment photo? Please make an analysis step by step.
+            """) +
+            self.get_response_format_prompt(model="gpt-4o")
+        )

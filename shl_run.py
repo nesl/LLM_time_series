@@ -54,6 +54,11 @@ def time_text_classify(model, input_repre, result_save_path, data_num, location,
         end_index = data.index[data[0] == end_timestamp]
         end_index = end_index.item()
 
+        """ !!! Modify shl_process.py!!! """
+        # if data.loc[start_index:end_index+1, 'label'].nunique() > 1:
+        #     print(f"Skipping segment {start_index}-{end_index} due to multiple labels")
+        #     continue
+        
         data_segment = data.iloc[start_index:end_index+1:(100 // freq), 1:10] # IMU data. Use 100 // freq to downsample to `freq`. Use `1:10` to extract IMU data in column 2-10.
         formatted_data = data_segment.apply(lambda col: ' '.join(col.astype(str)), axis=0)
         
@@ -273,6 +278,34 @@ def time_plot_classify(model, input_repre, result_save_path, data_num, location,
                             }
                         ],
             )
+        elif input_repre == "env_only":
+            # Get environment photo
+            file_path_video = os.path.join(DATA_FOLDER, f'{idx}_video.png')
+            base64_image_env = encode_image(file_path_video)
+            
+            prompt = PROMPT_CONFIG_HAR.get_env_only_prompt()
+            # print("PROMPT:", prompt)
+            # input("Enter Press...")
+
+            response = CLIENT.chat.completions.create(
+                model=model,
+                response_format={"type": "json_object"},
+                messages=[
+                            {
+                                "role": "user",
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": prompt
+                                    },
+                                    {
+                                        "type": "image_url",
+                                        "image_url": {"url": f"data:image/png;base64,{base64_image_env}"},
+                                    },
+                                ]
+                            }
+                        ],
+            )
         else:
             raise ValueError(f"{input_repre} is not supported in function `time_plot_classify()`")
 
@@ -323,7 +356,8 @@ if __name__ == "__main__":
             "time_text_description",
             "time_plot",
             "time_plot_fewshot",
-            "time_plot_env"
+            "time_plot_env",
+            "env_only"
         ], 
         required=True, help="Input representation"
     )
@@ -357,18 +391,12 @@ if __name__ == "__main__":
         "deepseek-reasoner": "dsr1"
     }
     if args.result_save_filename is None:
-        args.result_save_filename = f"TEST_results_{model_abbr[args.model]}_User1_220617_{args.data_num*4}_{args.location}_{args.input}_4class.csv"
+        args.result_save_filename = f"results_{model_abbr[args.model]}_User1_220617_{args.data_num*4}_{args.location}_{args.input}_4class.csv"
     result_save_path = os.path.join("./results/HAR", args.result_save_filename)
-    
-    ## debug
-    print("Arguments:")
-    for key, value in vars(args).items():
-        print(f"{key}: {value}")
-    ########
     
     if args.input in ["time_text", "time_text_fewshot", "time_text_description"]:
         time_text_classify(model=args.model, input_repre=args.input, result_save_path=result_save_path, data_num=args.data_num, location=args.location, freq=args.frequency)
-    elif args.input in ["time_plot", "time_plot_fewshot", "time_plot_env"]:
+    elif args.input in ["time_plot", "time_plot_fewshot", "time_plot_env", "env_only"]:
         time_plot_classify(model=args.model, input_repre=args.input, result_save_path=result_save_path, data_num=args.data_num, location=args.location, freq=args.frequency)
     else:
         raise ValueError(f"{args.input} is not supported")
