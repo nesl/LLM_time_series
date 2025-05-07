@@ -466,7 +466,7 @@ The input includes 2 images. The first image is IMU plot identical with the prev
 **Input image 2:**  
 ![env_photo](datasets/SHL_processed/User1/220617/Torso_video/1_video.png)
 
-**7. Environment photo**
+**7. Environment photo:**  
 We ask the LLMs to classify solely based on environment photo to study the effect of IMU plots and environment photo individually. 
 ```
 You are an expert in human activity analysis. You are given an envorinment photo taken during a person's transportation by a camera placed in their torso.
