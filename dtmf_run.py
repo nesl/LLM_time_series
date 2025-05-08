@@ -312,7 +312,7 @@ if __name__ == "__main__":
 
     # freq_text
     parser_text = subparsers.add_parser("freq_text", parents=[base_parser], help="Run experiments for frequency-magnitude series in raw text")
-    parser_text.add_argument('-g', '--guide', action='store_true', help="Add step-bystep guidance or not")
+    parser_text.add_argument('-g', '--guide', action='store_true', help="Add step-by-step guidance or not")
     parser_text.set_defaults(func=freq_text)
 
     # freq_plot
