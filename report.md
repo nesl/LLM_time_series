@@ -4,9 +4,6 @@ The increasing prevalence of time-series data across domains, such as healthcare
 
 
 ## Content
-- [Can LLMs Classify Time Series Data?](#can-llms-classify-time-series-data)
-  - [Abstract](#abstract)
-  - [Content](#content)
   - [1. Introduction](#1-introduction)
   - [2. Related Works](#2-related-works)
     - [2.1 DTMF Prediction](#21-dtmf-prediction)
