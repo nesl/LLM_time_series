@@ -304,7 +304,7 @@ We use prompt from HARGPT [[4]](#4) which also focusing on HAR, and tailored inp
 All the sensor data are integrated in prompts in their original formats. Here is the prompt:
 ```
 **Prompt for IMU time series as raw text (for GPT models):**
-You are an expert of IMU-based human activity analysis. The IMU data is collected from {device_name} attached to the user's {location} with a sampling rate of {freq}Hz. The IMU data is given in the IMU coordinate frame. The three-axis accelerations, gyroscopes and magnetometers are given below.
+You are an expert of IMU-based human activity analysis. The IMU data is collected from {device_name} attached to the user's {location} for {duration} seconds with a sampling rate of {freq}Hz. The IMU data is given in the IMU coordinate frame. The three-axis accelerations, gyroscopes and magnetometers are given below.
     Accelerations:
     x-axis: {...}, y-axis: {...}, z-axis: {...}
     Gyroscopes:
@@ -330,9 +330,9 @@ Please provide your answer in the format of <<ACTION>> at the first word of your
 All HAR experiments use these structures for respective models. In the following prompts illustrations, we only take GPT-style output structure as examples.
 
 **2. IMU time series text with one-shot learning:**  
-One example IMU data of each class (different with testing data) is provided in addition. Here is the prompt:
+One example of IMU data for each class (different from testing data) is provided in addition. Here is the prompt:
 ```
-You are an expert of IMU-based human activity analysis. The IMU data is collected from {device_name} attached to the user's {location} with a sampling rate of {freq}Hz. The person's action belongs to one of the following categories: Still, Walking, Run, Car. Here are examples for each class:
+You are an expert of IMU-based human activity analysis. The IMU data is collected from {device_name} attached to the user's {location} for {duration} seconds with a sampling rate of {freq}Hz. The person's action belongs to one of the following categories: Still, Walking, Run, Car. Here are examples for each class:
     Still:
         Accelerations:
         x-axis: {...}, y-axis: {...}, z-axis: {...}
@@ -363,7 +363,7 @@ Comparing to raw sensor data, LLMs are better at understanding natural language.
 
 ```
 **Step 1: Prompt for description:**
-You are an expert of IMU-based human activity analysis. The IMU data is collected from {device_name} attached to the user's {location} with a sampling rate of {freq}Hz. The IMU data is given in the IMU coordinate frame. The three-axis accelerations, gyroscopes and magnetometers are given below.
+You are an expert of IMU-based human activity analysis. The IMU data is collected from {device_name} attached to the user's {location} for {duration} seconds with a sampling rate of {freq}Hz. The IMU data is given in the IMU coordinate frame. The three-axis accelerations, gyroscopes and magnetometers are given below.
     Accelerations:
     x-axis: {...}, y-axis: {...}, z-axis: {...}
     Gyroscopes:
@@ -375,7 +375,7 @@ Please analyse the sensor data trend variations, and provide a summary of sensor
 
 ```
 **Step 2: Prompt for recognition:**
-You are an expert of IMU-based human activity analysis. The IMU data is collected from {device_name} attached to the user's {location} with a sampling rate of {freq}Hz. The IMU data is given in the IMU coordinate frame. 
+You are an expert of IMU-based human activity analysis. The IMU data is collected from {device_name} attached to the user's {location} for {duration} seconds with a sampling rate of {freq}Hz. The IMU data is given in the IMU coordinate frame. 
 The person's action belongs to one of the following categories: Still, Walking, Run, Car.
 
 Here is a detailed description of the IMU signals: {imu_description_from_step1}.
@@ -398,7 +398,7 @@ Could you please tell me what action the person was doing based on the given inf
 **4. IMU time series as visual plots:**  
 Instead of providing textual information, we plot the IMU time-series into line graph as input to test whether multimodal LLMs can understand patterns in representations other than text.
 ```
-You are an expert of IMU-based human activity analysis. The IMU data is collected from {device_name} attached to the user's {location} for {DURATION} seconds with a sampling rate of {freq}Hz. The three-axis accelerations, gyroscopes and magnetometers are plotted in the given picture.
+You are an expert of IMU-based human activity analysis. The IMU data is collected from {device_name} attached to the user's {location} for {duration} seconds with a sampling rate of {freq}Hz. The three-axis accelerations, gyroscopes and magnetometers are plotted in the given picture.
 
 The person's action belongs to one of the following categories: Still, Walking, Run, Car.
 
@@ -414,7 +414,7 @@ Could you please tell me what action the person was doing based on the given inf
 
 **5. IMU time series plot with one-shot learning:**
 ```
-You are an expert of IMU-based human activity analysis. The IMU data is collected from {device_name} attached to the user's {location} for {DURATION} seconds with a sampling rate of {freq}Hz. The three-axis accelerations, gyroscopes and magnetometers are plotted in the given plot.
+You are an expert of IMU-based human activity analysis. The IMU data is collected from {device_name} attached to the user's {location} for {duration} seconds with a sampling rate of {freq}Hz. The three-axis accelerations, gyroscopes and magnetometers are plotted in the given plot.
 
 The person's action belongs to one of the following categories: Still, Walking, Run, Car. The first four plots are examples of IMU data readings for Still, Walking, Run and Car respectively.
 
@@ -444,7 +444,7 @@ Could you please tell me what action the person was doing based on the last plot
 **6. Multimodal inputs:**  
 In addition to IMU representations, an environmental photo taken during their transportation from a body-worn camera carried by the users is provided. This photo adds more visual and physical-world clues.
 ```
-You are an expert of IMU-based human activity analysis. The IMU data is collected from {device_name} attached to the user's {location} for {DURATION} seconds with a sampling rate of {freq}Hz. You are given 2 images: the first image is the plot of three-axis accelerations, gyroscopes and magnetometers; the second image is an environment photo taken during this activity by a camera placed in the user's torso.
+You are an expert of IMU-based human activity analysis. The IMU data is collected from {device_name} attached to the user's {location} for {duration} seconds with a sampling rate of {freq}Hz. You are given 2 images: the first image is the plot of three-axis accelerations, gyroscopes and magnetometers; the second image is an environment photo taken during this activity by a camera placed in the user's torso.
 
 The person's action belongs to one of the following categories: Still, Walking, Run, Car.
 
@@ -466,7 +466,7 @@ The input includes 2 images. The first image is IMU plot identical with the prev
 **7. Environment photo:**  
 We ask the LLMs to classify solely based on environment photo to study the effect of IMU plots and environment photo individually. 
 ```
-You are an expert in human activity analysis. You are given an envorinment photo taken during a person's transportation by a camera placed in their torso.
+You are an expert in human activity analysis. You are given an environment photo taken during a person's transportation by a camera placed in their torso.
 
 The person's transportation method belongs to one of the following categories: Still, Walking, Run, Car.
 
@@ -477,11 +477,10 @@ Please provide your answer in the following JSON structure:
     "label": the predicted human action category,
     "analysis": a detailed explanation of your analysis process
 }
-"""
 ```
 The input only include one image of the environment photo (Input image 2 in the prior experiment).
 
-**Dataset** &nbsp; &nbsp; We conducted a series of experiments with different input representations on Sussex-Huawei Locomotion (SHL) dataset. It is a collection of smartphone sensor data for human activity and transportation  mode recognition. It encompasses eight distinct activities: Still, Walk, Run, Bike, Car, Bus, Train, and Subway. 3 participants carried Huawei Mate 9 smartphones at four body positions — Hand, Hips, Torso, and Bag — simultaneously, capturing data from 15 sensor modalities, including IMU (accelerometers, gyroscopes, magnetometers), GPS, WiFi, gravity, photo and more. This dataset contains around 750 hours of labeled data in total. 
+**Dataset** &nbsp; &nbsp; We conducted a series of experiments with different input representations on Sussex-Huawei Locomotion (SHL) dataset [[38]](#38). It is a collection of smartphone sensor data for human activity and transportation mode recognition. It encompasses eight distinct activities: Still, Walk, Run, Bike, Car, Bus, Train, and Subway. 3 participants carried Huawei Mate 9 smartphones at four body positions — Hand, Hips, Torso, and Bag — simultaneously, capturing data from 15 sensor modalities, including IMU (accelerometers, gyroscopes, magnetometers), GPS, WiFi, gravity, photo and more. This dataset contains around 750 hours of labeled data in total. 
 
 To evaluate the basic ability of LLMs in processing time series signals, we simplify this task to only classify four typical motions: Still, Walking, Run, and Car from inertial measurement unit (IMU) data collected at a sampling rate of 100Hz, with each input sample spanning 10 seconds. We test on 30 samples for each class.
 
@@ -501,7 +500,7 @@ GPT-o1 generally outperforms GPT-4o and DeepSeek-R1, with all models exhibiting 
 
 Despite their similar overall accuracies, a closer look at the confusion matrices (Fig. 9) reveals differing prediction patterns. GPT-4o and GPT-o1 show a strong bias toward predicting “Walking” across all cases, followed by "Run". Similar to DTMF, "Walking" and "Run" can be considered as in the “middle” of four assigned classes, which may be favored by LLMs under uncertainty. In contrast, results of DeepSeek-R1 distributes more evenly but tends to mess up "Still" with "Car", and "Walking" with both "Car" and "Run".
 
-Besides, 14 out of 120 outputs of DeepSeek-R1 cannot be successfully processed, because DeepSeek-R1 fails to follow our output structure requirement, resulting in the "Null" column in the confusion matrix below. This problem is likely due to the output format. DeepSeek-R1 API doesn't support JSON output, thus we prompt it to give the action in the format of `<<ACTION>>` as the first word of its responses. This looser constraint likely contributes to the formatting errors. On the other hand, GPT-4o and GPT-o1 consistently follow the JSON output format, as specified in the prompt, and do not suffer from this issue.
+Besides, 14 out of 120 outputs of DeepSeek-R1 cannot be successfully processed, because DeepSeek-R1 fails to follow our output structure requirement, resulting in the "Null" column in the confusion matrix below. This problem is likely due to the output format. DeepSeek-R1 API does not support JSON output, thus we prompt it to give the action in the format of `<<ACTION>>` as the first word of its responses. This looser constraint likely contributes to the formatting errors. On the other hand, GPT-4o and GPT-o1 consistently follow the JSON output format, as specified in the prompt, and do not suffer from this issue.
 
 Adding a textual summary of motion patterns and trend description provides only marginal improvement. Summarization alone is insufficient to enhance model understanding and classification performance without richer context provided.
 
@@ -520,9 +519,9 @@ When the IMU data is converted into time-series plots, GPT-4o yields an accuracy
 | ![gpt4o](./results/HAR/conf_matrix_gpt4o_User1_220617_120_Torso_time_plot_4class.png) | ![gpto1](./results/HAR/conf_matrix_gpto1_User1_220617_120_Torso_time_plot_4class.png) |
 |                                      (a) GPT-4o                                       |                                      (b) GPT-o1                                       |
 
-One-shot learning significantly boosts performance, demonstrating the strong generalization ability of LLMs from limited examples. All models have an accuracy boost for 30%~50% with a labeled IMU time-series example for each activity provided. The issue of prone to specific labels is alliviated, reflecting a noticeable improvement in recognizing distinct motion patterns. The same trend holds for visual input formats, which reinforces the idea that LLMs are good at patterns learning and matching with labeled context.
+One-shot learning significantly boosts performance, demonstrating the strong generalization ability of LLMs from limited examples. All models have an accuracy boost for 30%~50% with a labeled IMU time-series example for each activity provided. The issue of prone to specific labels is alleviated, reflecting a noticeable improvement in recognizing distinct motion patterns. The same trend holds for visual input formats, which reinforces the idea that LLMs are good at pattern learning and matching given labeled contexts.
 
-However, "Car" and "Still" remain hard for LLMs even with examples provided. As illustrated in the prompt section above, these two classes are indeed less distinctive than others, though they are not indistinguishable. “Walking” and "Run" have clear characters. Walking produces periodic vibrations in the accelerometer and gyroscope data. Running also shows periodic patterns but with sharper peaks and more frequent, intense fluctuations. “Car” and “Still” looks more similar to each other. Both generate relatively steady readings across accelerometers and gyroscopes. However, if looked closer, the accelerometer accelerometer is a slightly higher when the user is in a car, and the readings tend to be more turbulent. These subtle yet meaningful differences are often overlooked by LLMs, suggesting that they may still struggle to extract and reason over fine-grained, modality-specific cues. There remains significant room for improvement in enhancing LLMs' capability to perform nuanced cross-modal comparisons.
+However, "Car" and "Still" remain hard for LLMs even with examples provided. As illustrated in the prompts section above, these two classes are indeed less distinctive than others, though they are not indistinguishable. “Walking” and "Run" have clear characters. Walking produces periodic vibrations in the accelerometer and gyroscope data. Running also shows a periodic pattern but with sharper peaks and higher frequency, intenser fluctuations. “Car” and “Still” look similar to each other, both of which generate relatively steady readings across accelerometers and gyroscopes. However, if looked closer, the accelerometer is slightly higher when the user is in a car than standing still, and the readings tend to be more turbulent. These subtle yet meaningful differences are often overlooked by LLMs, suggesting that they may still struggle to extract and reason over fine-grained, modality-specific cues. There remains significant room for improvement in enhancing LLMs' capability to perform nuanced cross-modal comparisons.
 
 **Figure 11: Confusion matrices of IMU time series plots input with oneshot learning:**  
 |                                                                                               |                                                                                               |
@@ -531,9 +530,9 @@ However, "Car" and "Still" remain hard for LLMs even with examples provided. As 
 |                                          (a) GPT-4o                                           |                                          (b) GPT-o1                                           |
 
 <a name="env-photo-only"></a>
-Inputting environment photo only performs better than inputting IMU time-series plots only. These photos allow the models to infer enviromental contextual information about the activity. For example, a photo of street scene likely belongs to “Walking” or “Run”, whereas a car windshield indicates vehicular movement. This also aligns with how we humans naturally infer transportation modes by combining motion cues with environmental context. Moreover, since these photos come from physical world, they are likely more prevalent than IMU plots in the models’ pretraining data, making them easier for LLMs to interpret.
+Inputting environment photos only performs better than providing IMU time series plots only. These photos allow the models to infer environmental contextual information about the activity. For example, a photo of the street scene likely belongs to “Walking” or “Run”, whereas a car windshield indicates vehicular movement. This also aligns with how we humans naturally infer transportation modes by combining motion cues with environmental context. Moreover, since these photos come from the physical world, they are likely more prevalent than IMU plots in the models’ pretraining data, making them easier for LLMs to interpret.
 
-The following confusion matrices indicate that LLMs recall almost all "Car" samples because of some explicit signals such as windshield, ahead viecle and road. Nevertheless, environment photo has its own limitations. It provide very limited information to tell street-view motions (Still, Walking and Run) apart from each other. Interestingly, GPT-4o ofter mistakes "Running" as "Car", since it overestimates the moving speed from the "blurry" photos taken when participants are running. Pure environmental photos lack direct information about the motion itself.
+The following confusion matrices indicate that LLMs recall almost all "Car" samples because of some explicit signals such as windshield, ahead vehicles and road. Nevertheless, environment photo has its own limitations. It provides very limited information to tell street-view motions (Still, Walking and Run) apart from each other. Interestingly, GPT-4o often mistakes "Running" as "Car", since it overestimates the moving speed from the "blurry" photos taken when participants are running. Pure environmental photos lack direct information about the motion itself.
 
 **Figure 12: Confusion matrices of pure environmental photos input:**  
 |                                                                                      |                                                                                      |
@@ -541,9 +540,9 @@ The following confusion matrices indicate that LLMs recall almost all "Car" samp
 | ![gpt4o](./results/HAR/conf_matrix_gpt4o_User1_220617_120_Torso_env_only_4class.png) | ![gpto1](./results/HAR/conf_matrix_gpto1_User1_220617_120_Torso_env_only_4class.png) |
 |                                      (a) GPT-4o                                      |                                      (b) GPT-o1                                      |
 
-Incorporating multimodal cues will significantly enhance classification accuracy. When both IMU time-series plots and environment photos are provided, GPT-4o achieves 70.8% accuracy and GPT-o1 achieves 83.3%. IMU data and environment photo right complement each other: IMU data provides physical characters of motions that can differenciate "Walking"/"Run" and "Still"/"Car", and visual clues from photos separate street-view motions (Still, Walking) and inside motions (Car).
+Incorporating multimodal cues significantly enhances classification accuracy. When both IMU time-series plots and environment photos are provided, GPT-4o achieves 70.8% accuracy and GPT-o1 achieves 83.3%. IMU data and environment photos complement each other perfectly: IMU data provides physical characters of motions that can differentiate "Walking"/"Run" and "Still"/"Car", and visual clues from photos separate street-view motions (Still, Walking) and inside motions (Car).
 
-However, Fig. 13 shows that both models struggle to differentiate between “Walking” and “Run”, while GPT-4o continues to confuse “Still” with “Car.” The former confusion is likely because environmental photos do not provide enough visual distinction between walking and running scenes. The latter one is consistent with the results from the one-shot IMU plot experiment, most likely due to the similarity of their IMU signal patterns.
+However, Fig. 13 shows that both models struggle to distinguish “Walking” and “Run”, and GPT-4o continues to misclassify “Still” as “Car.” The former confusion is likely because environmental photos do not provide enough visual distinction between walking and running scenes. The latter is consistent with the results from the one-shot IMU plot experiment, probably because of the similarity of their IMU signal patterns.
 
 **Figure 13: Confusion matrices of IMU time series plots input with environmental photos:**  
 |                                                                                             |                                                                                             |
@@ -552,23 +551,23 @@ However, Fig. 13 shows that both models struggle to differentiate between “Wal
 |                                         (a) GPT-4o                                          |                                         (b) GPT-o1                                          |
 
 ### 4.3 Conclusion of HAR
-The HAR experiments reveal that input formation plays a crucial role in LLM-based IMU sensor data recognition. While raw IMU text leads to poor accuracy, combining it with semantic information, one-shot learning, visualization or multimodal integration brings improvements to different extents. Among all these enhancements, one-shot examples significantly boost performance across all models, further emphasizing LLMs’ strong generalization capabilities with minimal domain specific examples. Visualizing positively assists LLMs to identify IMU data characters for recognition. This is in contrast to our findings in DTMF experiments, suggesting that visual language models are better at recognizing general patterns, while limiting on detecting nuance. Similar to DTMF, GPT-o1 continues to achieve the highest accuracy among all evaluated models. Nonetheless, all models still struggle with distinguishing subtle classes, especially between “Still” and “Car” or “Walking” and “Run”, revealing LLMs' shortage in extracting fine-grained temporal and cross-modal patterns. These findings highlight the strengths and current boundaries of applying LLMs to HAR tasks, indicating that while there are some strategies to enhance performance, we still need more targeted modeling to address nuanced activity recognition.
+The above HAR experiments reveal that input formation plays a crucial role in LLM-based IMU sensor data recognition. While raw IMU text leads to poor accuracy, combining it with semantic information, one-shot learning, visualization or multimodal integration brings improvements to different extents. Among all these enhancements, one-shot examples significantly boost performance across all models, further emphasizing LLMs’ strong generalization capabilities with minimal domain specific examples. Visualization positively assists LLMs to identify IMU data characters for recognition. This is in contrast to our findings in DTMF experiments, suggesting that visual language models are better at recognizing general patterns, but limiting on detecting nuance. Similar to DTMF, GPT-o1 continues to achieve the highest accuracy among all evaluated models. Nonetheless, all models remain struggle with distinguishing subtle classes, especially between “Still” and “Car” or “Walking” and “Run”. This reveals LLMs' shortage in extracting fine-grained temporal and cross-modal patterns. These findings highlight the strengths and current boundaries of applying LLMs to HAR tasks, indicating that while there are some strategies to enhance performance, we still need more targeted modeling to address nuanced activity recognition.
 
 ## 5. Conclusion
 This study investigates the use of Large Language Models (LLMs) for time-series classification through two diverse tasks: DTMF signal decoding and Human Activity Recognition (HAR). We systematically evaluate how different representations of time-series data—including raw numerical text, descriptive summaries, plots, and multimodal combinations—affect model performance.
 
 Our results highlight several key insights:
 
-- Input representation critically shapes LLM performance. Raw numerical inputs yield poor results. Contextual representations can boost the accuracy. Another more efficient improvement approach is one-shot learning, which reinforce the strong abilities of LLMs to generalize from few labeled and well-structured examples.
-- GPT-o1 consistently outperforms GPT-4o and DeepSeek-R1 across tasks, demonstrating stronger reasoning, robustness, and domain adaptability. DeepSeek-R1 lags slightly behind but shows promise in certain reasoning tasks. GPT-4o is least competitive in time-series analysis among these three models, though the gap can be made up by domain knowledge enhancement techniques to some extent. This suggest that while LLMs hold promise for general time-series analysis, they currently heavily rely on prompt design, input representation, and prior domain knowledge.
+- Input representation critically shapes LLM performance. Raw numerical inputs yield poor results. Contextual representations can boost the accuracy. Another more efficient improvement approach is one-shot learning, which reinforces the strong abilities of LLMs to generalize from few labeled and well-structured examples.
+- GPT-o1 consistently outperforms GPT-4o and DeepSeek-R1 among various tasks, demonstrating stronger reasoning, robustness, and domain adaptability. DeepSeek-R1 lags slightly behind but shows promise in certain reasoning tasks. GPT-4o is least competitive in time series analysis among these three models, though the gap can be partially narrowed down by domain knowledge enhancement techniques. This suggests that while LLMs hold promise for general time-series analysis, they currently heavily rely on prompt design, input representation, and prior domain knowledge.
 - Visual inputs provide modest gains for some models but reveal substantial limitations in LLMs' visual interpretation abilities, particularly in some precise requirements, such as accurately identifying line peaks.
 - Adding environment photos for HAR tasks enhances classification accuracy, underscoring the value of multimodal context.
 
-It is worth noting that for both DTMF and HAR tasks, traditional methods still outperform LLMs in terms of classification accuracy and computational efficiency. However, the goal of this project is not to outperform existing methods, but rather to explore whether LLMs have the capability to handle time-series data in a general and flexible way. LLMs deliver competitive performance without any task-specific fine-tuning, demonstrating the promising potential of LLMs as general processor in time-series analysis.
+It is worth noting that for both DTMF and HAR, traditional methods still outperform LLMs in terms of classification accuracy and computational efficiency. However, the goal of this project is not to outperform existing methods, but rather to explore whether LLMs have the capability to handle time-series data in a general and flexible way. LLMs deliver competitive performance without any task-specific fine-tuning, demonstrating the promising potential of general time series processing.
 
-Despite their potential, current LLMs still struggle with precise signal interpretation, domain-specific reasoning, and visual pattern recognition. Future research can explore methods for integrating domain-specific knowledge into LLMs more effectively, such as fine-tuning, retrieval-augmented generation, or embedding external knowledge bases. Additionally, improving models’ robustness to noise and enhancing their ability to process subtle signal features will be critical. The SHL dataset used for HAR was released before the LLMs in this study were trained, so the models might already seen part of it during training. It is worth to reevaluate on fully unseen datasets to verify these findings.
+Despite their potential, current LLMs still struggle with precise signal interpretation, domain-specific reasoning, and visual pattern recognition. Future research can explore methods for integrating domain-specific knowledge into LLMs more effectively, such as fine-tuning, retrieval-augmented generation, or embedding external knowledge bases. Additionally, improving models’ robustness to noise as well as enhancing their ability to process subtle signal features are critical. The SHL dataset used for HAR was released before the LLMs in this study were trained, so the models might already seen part of our testing data during training. It is worth reevaluating on fully unseen datasets to verify these findings.
 
-This project is only a prelimilary exploration of LLMs for time-series tasks, but it still provides some interesting insights. Expanding benchmarks to include a border range of time-series tasks (e.g., forecasting, anomaly detection) and evaluating models on cross-domain generalization could further deepen our understanding of LLMs’ potential in time-series analysis.[^3]
+This project is a preliminary exploration of LLMs for time series tasks, but it still provides some interesting insights. Expanding benchmarks to include a border range of time series tasks (e.g., forecasting, anomaly detection, etc.) and evaluating models on cross-domain generalization could further deepen our understanding of LLMs’ potential in time series analysis.[^3]
 
 
 [^3]: ChatGPT is used to polish language in this report. All experimental results and analysis are original.
@@ -611,3 +610,4 @@ This project is only a prelimilary exploration of LLMs for time-series tasks, bu
 <a id="35">[35]</a> Xiyuan Zhang, Ranak Roy Chowdhury, Rajesh K. Gupta, and Jingbo Shang. 2024. Large Language Models for Time Series: A Survey. *arXiv preprint arXiv:2402.01801 (2024).*  
 <a id="36">[36]</a> Bendong Zhao, Huanzhang Lu, Shangfeng Chen, Junliang Liu, and Dongya Wu. 2017. Convolutional neural networks for time series classification. *Journal of Systems Engineering and Electronics 28, 1 (2017), 162–169.*  
 <a id="37">[37]</a> Tian Zhou, Peisong Niu, Liang Sun, Rong Jin, et al. 2023. One Fits All: Power general time series analysis by pretrained LM. *Advances in Neural Information Processing Systems 36 (2023), 43322–43355.*  
+<a id="38">[38]</a> Hristijan Gjoreski, Mathias Ciliberto, Lin Wang, Francisco Javier Ordonez Morales, Sami Mekki, Stefan Valentin, and Daniel Roggen. 2018. The University of Sussex-Huawei Locomotion and Transportation Dataset for Multimodal Analytics With Mobile Devices. IEEE Access 6 (2018), 42592–42604. doi:10.1109/ACCESS.2018.2858933
