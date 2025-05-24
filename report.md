@@ -94,7 +94,7 @@ From the given responses, the models seem to know the correct method of DTMF cla
 | Frequency Plot                | -                       | 25.8   | 36.2   |
 
 **1) Frequency Series in Text**
-First, we provide LLMs with raw frequency data in text. The input is a series of frequency-magnitude pairs in the format of *"frequency1: magnitude1, frequency2: magnitude2, ..."*. For example, the following series representing key "0" might look like: "12.5:3.30, 25.0:3.30, 37.5:3.30, ..., 912.5:64.33, 925.0:114.71, 937.5:525.26, 950.0:204.74, 962.5:85.96, 975.0:54.57, ...". To evaluate the models’ inherent reasoning capabilities, we first presented the data without any task-specific instructions or guidance. We then introduced prompts that provided step-by-step guidance to offer more contextual information and assist the models in the reasoning process. Here are the prompts:  
+First, we provide LLMs with raw frequency data in text. The input is a series of frequency-magnitude pairs in the format of *"frequency1: magnitude1, frequency2: magnitude2, ..."*. For example, the following series representing key "0": "12.5:3.30, 25.0:3.30, 37.5:3.30, ..., 912.5:64.33, 925.0:114.71, 937.5:525.26, 950.0:204.74, 962.5:85.96, 975.0:54.57, ...". To evaluate the models’ inherent reasoning capabilities, we first presented the data without any task-specific instructions or guidance. We then introduced prompts that provided step-by-step guidance to offer more contextual information and assist the models in the reasoning process. Here are the prompts:  
 
 **Without Guidance:**  
 ```
@@ -222,10 +222,10 @@ Overall, GPT-4o is subject to limitations of domain knowledge and poor robustnes
 
 
 **Figure 6: Confusion matrix of GPT-4o inputting frequency pairs:**
-|                                                                         |                                                                        |
-| :---------------------------------------------------------------------: | :--------------------------------------------------------------------: |
-| ![noised](./results/dtmf/conf_matrix_gpt4o_noise_freq_pair_overall.png) | ![clean](./results/dtmf/conf_matrix_gpt4o_clean_freq_pair_overall.png) |
-|                               (a) noised                                |                               (b) clean                                |
+|           |           |           |
+| :---------------------------------------------------------------------: | :--------------------------------------------------------------------: | :--------------------------------------------------------------------: |
+| ![noised](./results/dtmf/conf_matrix_gpt4o_noise_freq_pair_overall.png) | ![](./results/dtmf/conf_matrix_gpt4o_noise_freq_pair_map_overall.png) | ![clean](./results/dtmf/conf_matrix_gpt4o_clean_freq_pair_overall.png) |
+|      (a) noised frequency pair, without map      |     (b) noised frequency pair, with map | (c) clean frequency pair, without map     |
 
 [^2]: Please refer to [results_gpt4o_noise_freq_pair.csv](https://github.com/nesl/LLM_time_series/blob/master/results/dtmf/results_gpt4o_noise_freq_pair.csv) for raw responses and analysis of GPT-4o given noised frequeny pair input.
 
@@ -240,7 +240,7 @@ Please provide your answer in the following JSON structure:
     "analysis": "a detailed explanation of your analysis process."
 }
 ```
-One image of frequency series line graph is inputted together. Here is an example (this plot refers to key "0"):
+The image of targeted image of frequency series line graph is inputted together. Here is an example (this plot refers to key "0"):
 ![757001_tone5_freqs_grid](datasets/dtmf/dtmf_noise_12/757001_tone5_freqs_grid.png)
 
 The result is shown in Table 1 above. From the confusion matrices (Fig. 7), we can see that both models exhibit a tendency to misclassify keys toward middle-range frequency values, particularly “5” for GPT-4o and “4”, “5”, or “6” for GPT-o1. This suggests that when uncertain, LLMs may default to “safer” middle-range predictions.
@@ -261,7 +261,7 @@ Here are the step-by-step results of frequency plots. Since plots are inherently
 | GPT-4o | 25.8                    | 47.1                           | 80.8                            | 51.5                               |
 | GPT-o1 | 36.2                    | 44.6                           | 83.3                            | 96.3                               |
 
-In the first step of frequency detection, both GPT-4o and GPT-o1 struggle with detecting the peaks of plots, especially the peak of low frequency, and the performance gap between two models are is also narrower here than in text-based setting. This suggests that current LLMs still face challenges in precise visual pattern recognition, especially when dealing with subtle variations. Text-based frequency data allows models to process exact numerical values directly, whereas visual representations introduce ambiguity due to pixel-based resolution limits and the inherent difficulty of image recognition.
+In the first step of frequency detection, both GPT-4o and GPT-o1 struggle with detecting the peaks of plots, especially the peak of low frequency, and the performance gap between two models is also narrower here than in text-based setting. This suggests that current LLMs still face challenges in precise visual pattern recognition, especially when dealing with subtle variations. Text-based frequency data allows models to process exact numerical values directly, whereas visual representations introduce ambiguity due to pixel-based resolution limits and the inherent difficulty of image recognition.
 
 In the second step of frequency-to-keys mapping, GPT-4o performed better with plots than with textual frequency series, but still far from good. However, this improvement may be misleading, as the result is heavily biased. As Fig. 8 shows, most detected frequency peaks from GPT-4o are assigned toward key "5", likely coming from the model’s tendency to default to mid-range predictions under uncertainty as analysed before, which inflates the mapping accuracy for those specific cases.
 
@@ -282,14 +282,14 @@ The first two hypotheses are not straightforward to verify directly. To isolate 
 | GPT-4o | 25.4                    | 48.7                           | 80.0                            | 50.6                               |
 | GPT-o1 | 35.8                    | 42.9                           | 83.3                            | 99.6                               |
 
-There is no significant differences between Table 3 (noised frequency plot input) and Table 4 (clean frequency plot input), suggesting that the performance difference is primarily due to the discrepancies in class number and frequency intervals, rather than noise.
+There is no significant difference between Table 3 (noised frequency plot input) and Table 4 (clean frequency plot input), suggesting that the performance difference is primarily due to the discrepancies in class number and frequency intervals, rather than noise.
 
 ### 3.3 Conclusion of DTMF
 Through DTMF decoding, our findings highlight several limitations and strengths of current large language models (LLMs). While GPT-4o is powerful in many areas, it lacks the capability to transform time-domain data into the frequency domain, underscoring a gap in its external tool calling. For frequency domain inputs, reasoning models such as DeepSeek-R1 and GPT-o1 demonstrate significantly stronger abilities in processing structured numerical data, showing the great enhancement of such technique to LLMs logical reasoning skills. Furthermore, our results show that augmenting LLMs with domain-specific knowledge can improve their performance on targeted tasks. This may be a promising direction for future model development. Nevertheless, challenges remains: current LLMs still struggle with visual input processing, especially precise recognition (e.g, identify the exact line graph peak).
 
 ## 4. Human Activity Recognition (HAR) Experiments and Analysis
 ### 4.1 Methods
-We select the same LLMs as used in DTMF (DeepSeek-R1, GPT-4o, GPT-o1) to mark the capability of LLMs in recognizing human activities. Inspired by recent studies of LLMs for HAR, we primarily assess the impact of input representation and prompt engineering on model performance. This project covers three widely-used prompt engineering methods: zero-shot prompting [[23]](#23), few-shot prompting [[2]](#2) and Chain-of-Thought [[28]](#28) [[11]](#11). For input representations, this project targets at raw numerical text [[32]](#32) [[9]](#9), natural language descriptions [[22]](#22) [[16]](#16), visual plots [[30]](#30) [[31]](#31) [[34]](#34), and multimodal inputs. Here is the complete list of input formulars tested in this project:
+We select the same LLMs as used in DTMF (DeepSeek-R1, GPT-4o, GPT-o1) to mark the capability of LLMs in recognizing human activities based on inertial measurement unit (IMU) data. Inspired by recent studies of LLMs for HAR, we primarily assess the impact of input representation and prompt engineering on model performance. This project covers three widely-used prompt engineering methods: zero-shot prompting [[23]](#23), few-shot prompting [[2]](#2) and Chain-of-Thought [[28]](#28) [[11]](#11). For input representations, this project targets at raw numerical text [[32]](#32) [[9]](#9), natural language descriptions [[22]](#22) [[16]](#16), visual plots [[30]](#30) [[31]](#31) [[34]](#34), and multimodal inputs. Here is the complete list of input formulars tested in this project:
 1. IMU time series as raw text (zero-shot prompting),
 2. IMU time series text with one-shot learning,
 3. IMU time series with trend description,
@@ -478,11 +478,11 @@ Please provide your answer in the following JSON structure:
     "analysis": a detailed explanation of your analysis process
 }
 ```
-The input only include one image of the environment photo (Input image 2 in the prior experiment).
+The environment photo (as Input image 2 in the prior experiment shown) is the only input image.
 
-**Dataset** &nbsp; &nbsp; We conducted a series of experiments with different input representations on Sussex-Huawei Locomotion (SHL) dataset [[38]](#38). It is a collection of smartphone sensor data for human activity and transportation mode recognition. It encompasses eight distinct activities: Still, Walk, Run, Bike, Car, Bus, Train, and Subway. 3 participants carried Huawei Mate 9 smartphones at four body positions — Hand, Hips, Torso, and Bag — simultaneously, capturing data from 15 sensor modalities, including IMU (accelerometers, gyroscopes, magnetometers), GPS, WiFi, gravity, photo and more. This dataset contains around 750 hours of labeled data in total. 
+**Dataset** &nbsp; &nbsp; Experiments are conducted on Sussex-Huawei Locomotion (SHL) dataset [[38]](#38), which is a collection of smartphone sensor data for human activity and transportation mode recognition. It encompasses eight distinct activities: Still, Walk, Run, Bike, Car, Bus, Train, and Subway. 3 participants carried Huawei Mate 9 smartphones at four body positions — Hand, Hips, Torso, and Bag — simultaneously, capturing data from 15 sensor modalities, including IMU (accelerometers, gyroscopes, magnetometers), GPS, WiFi, gravity, photo and more. This dataset contains around 750 hours of labeled data in total. 
 
-To evaluate the basic ability of LLMs in processing time series signals, we simplify this task to only classify four typical motions: Still, Walking, Run, and Car from inertial measurement unit (IMU) data collected at a sampling rate of 100Hz, with each input sample spanning 10 seconds. We test on 30 samples for each class.
+To evaluate the basic ability of LLMs in processing time series signals, we simplify this task to only classify four typical motions: Still, Walking, Run, and Car from IMU data collected at a sampling rate of 100Hz, with each input sample spanning 10 seconds. We test on 30 samples for each class.
 
 ### 4.2 Results
 **Table 5: SHL Human Activities Recognition Accuracies (%):**  
@@ -500,7 +500,7 @@ GPT-o1 generally outperforms GPT-4o and DeepSeek-R1, with all models exhibiting 
 
 Despite their similar overall accuracies, a closer look at the confusion matrices (Fig. 9) reveals differing prediction patterns. GPT-4o and GPT-o1 show a strong bias toward predicting “Walking” across all cases, followed by "Run". Similar to DTMF, "Walking" and "Run" can be considered as in the “middle” of four assigned classes, which may be favored by LLMs under uncertainty. In contrast, results of DeepSeek-R1 distributes more evenly but tends to mess up "Still" with "Car", and "Walking" with both "Car" and "Run".
 
-Besides, 14 out of 120 outputs of DeepSeek-R1 cannot be successfully processed, because DeepSeek-R1 fails to follow our output structure requirement, resulting in the "Null" column in the confusion matrix below. This problem is likely due to the output format. DeepSeek-R1 API does not support JSON output, thus we prompt it to give the action in the format of `<<ACTION>>` as the first word of its responses. This looser constraint likely contributes to the formatting errors. On the other hand, GPT-4o and GPT-o1 consistently follow the JSON output format, as specified in the prompt, and do not suffer from this issue.
+Besides, 14 out of 120 outputs of DeepSeek-R1 cannot be successfully processed, because DeepSeek-R1 fails to follow our output structure requirement, resulting in the "Null" column in the confusion matrix below. This problem is likely due to the output format. DeepSeek-R1 API does not support JSON output, thus we prompt it to give the action in the format of `<<ACTION>>` as the first word of its responses. This looser constraint likely leads to the formatting errors. On the other hand, GPT-4o and GPT-o1 consistently follow the JSON output format, as specified in the prompt, and do not suffer from this issue.
 
 Adding a textual summary of motion patterns and trend description provides only marginal improvement. Summarization alone is insufficient to enhance model understanding and classification performance without richer context provided.
 
@@ -511,7 +511,7 @@ Adding a textual summary of motion patterns and trend description provides only 
 |                                                    (a) DeepSeek-R1                                                     |                                                       (b) GPT-4o                                                       |                                                       (c) GPT-o1                                                       |
 
 
-When the IMU data is converted into time-series plots, GPT-4o yields an accuracy of 30.0%, slightly improved from raw text input. The benefit is more significantly on GPT-o1 with the accuracy jumping from 34.5% to 46.7%. This may indicate that data visualization makes LLMs extract and analyze time-series data characters more easily. However, such benefit is not salient enough, and the models still struggles with recognizing patterns independently. Similar to text only input, both models are prone to "Walking".
+When the IMU data is converted into time-series plots, GPT-4o yields an accuracy of 30.0%, slightly improved from raw text input. The benefit is more significantly on GPT-o1 with the accuracy jumping from 34.5% to 46.7%. This may indicate that data visualization makes LLMs extract and analyze time-series data characters more easily. However, such benefit is not salient enough. Similar to text only input, both models are prone to "Walking".
 
 **Figure 10: Confusion matrices of IMU time series plots input:**  
 |                                                                                       |                                                                                       |
@@ -521,7 +521,7 @@ When the IMU data is converted into time-series plots, GPT-4o yields an accuracy
 
 One-shot learning significantly boosts performance, demonstrating the strong generalization ability of LLMs from limited examples. All models have an accuracy boost for 30%~50% with a labeled IMU time-series example for each activity provided. The issue of prone to specific labels is alleviated, reflecting a noticeable improvement in recognizing distinct motion patterns. The same trend holds for visual input formats, which reinforces the idea that LLMs are good at pattern learning and matching given labeled contexts.
 
-However, "Car" and "Still" remain hard for LLMs even with examples provided. As illustrated in the prompts section above, these two classes are indeed less distinctive than others, though they are not indistinguishable. “Walking” and "Run" have clear characters. Walking produces periodic vibrations in the accelerometer and gyroscope data. Running also shows a periodic pattern but with sharper peaks and higher frequency, intenser fluctuations. “Car” and “Still” look similar to each other, both of which generate relatively steady readings across accelerometers and gyroscopes. However, if looked closer, the accelerometer is slightly higher when the user is in a car than standing still, and the readings tend to be more turbulent. These subtle yet meaningful differences are often overlooked by LLMs, suggesting that they may still struggle to extract and reason over fine-grained, modality-specific cues. There remains significant room for improvement in enhancing LLMs' capability to perform nuanced cross-modal comparisons.
+However, "Car" and "Still" remain hard for LLMs even with examples provided. These two classes are indeed less distinctive than others, though they are not indistinguishable. Relatively speaking, “Walking” and "Run" have clearer characters. Walking produces periodic vibrations in the accelerometer and gyroscope data. Running also shows a periodic pattern, but with sharper peaks, higher frequency and intenser fluctuations. “Car” and “Still” look similar to each other, both of which generate relatively steady readings across accelerometers and gyroscopes. However, if looked closer, the accelerometer is slightly higher when the user is in a car than standing still, and the readings tend to be more turbulent. These subtle yet meaningful differences are often overlooked by LLMs, suggesting that they may still struggle to extract and reason over fine-grained, modality-specific cues. There remains significant room for improvement in enhancing LLMs' capability to perform nuanced cross-modal comparisons.
 
 **Figure 11: Confusion matrices of IMU time series plots input with oneshot learning:**  
 |                                                                                               |                                                                                               |
@@ -530,9 +530,12 @@ However, "Car" and "Still" remain hard for LLMs even with examples provided. As 
 |                                          (a) GPT-4o                                           |                                          (b) GPT-o1                                           |
 
 <a name="env-photo-only"></a>
-Inputting environment photos only performs better than providing IMU time series plots only. These photos allow the models to infer environmental contextual information about the activity. For example, a photo of the street scene likely belongs to “Walking” or “Run”, whereas a car windshield indicates vehicular movement. This also aligns with how we humans naturally infer transportation modes by combining motion cues with environmental context. Moreover, since these photos come from the physical world, they are likely more prevalent than IMU plots in the models’ pretraining data, making them easier for LLMs to interpret.
+Providing pure environment photos outperforms pure IMU time series plots. These photos allow the models to infer environmental contextual information about the activity. For example, a photo of the street scene likely belongs to “Walking” or “Run”, whereas a car windshield indicates vehicular movement. This also aligns with how we humans naturally infer transportation modes by combining motion cues with environmental context. Moreover, since these photos come from the physical world, they are likely more prevalent than IMU plots in the models’ pretraining data, making them easier for LLMs to interpret.
 
-The following confusion matrices indicate that LLMs recall almost all "Car" samples because of some explicit signals such as windshield, ahead vehicles and road. Nevertheless, environment photo has its own limitations. It provides very limited information to tell street-view motions (Still, Walking and Run) apart from each other. Interestingly, GPT-4o often mistakes "Running" as "Car", since it overestimates the moving speed from the "blurry" photos taken when participants are running. Pure environmental photos lack direct information about the motion itself.
+The following confusion matrices indicate that LLMs recall almost all "Car" samples when environment photos are provided, because of some explicit signals such as windshield, ahead vehicles and road. Nevertheless, environment photo has its own limitations. It provides very limited information to tell street-view motions (Still, Walking and Run) apart from each other. Interestingly, GPT-4o often mistakes "Running" as "Car", since it overestimates the moving speed from the "blurry" photos taken when participants are running[^3]. Pure environmental photos lack direct information about the motion itself.
+
+
+[^3]: Please refer to [results_gpt4o_Torso_env_only_4class.csv](https://github.com/nesl/LLM_time_series/blob/master/results/HAR/results_gpt4o_User1_220617_120_Torso_env_only_4class.csv) for raw responses and analysis of GPT-4o provided environment photos.
 
 **Figure 12: Confusion matrices of pure environmental photos input:**  
 |                                                                                      |                                                                                      |
@@ -560,17 +563,17 @@ Our results highlight several key insights:
 
 - Input representation critically shapes LLM performance. Raw numerical inputs yield poor results. Contextual representations can boost the accuracy. Another more efficient improvement approach is one-shot learning, which reinforces the strong abilities of LLMs to generalize from few labeled and well-structured examples.
 - GPT-o1 consistently outperforms GPT-4o and DeepSeek-R1 among various tasks, demonstrating stronger reasoning, robustness, and domain adaptability. DeepSeek-R1 lags slightly behind but shows promise in certain reasoning tasks. GPT-4o is least competitive in time series analysis among these three models, though the gap can be partially narrowed down by domain knowledge enhancement techniques. This suggests that while LLMs hold promise for general time-series analysis, they currently heavily rely on prompt design, input representation, and prior domain knowledge.
-- Visual inputs provide modest gains for some models but reveal substantial limitations in LLMs' visual interpretation abilities, particularly in some precise requirements, such as accurately identifying line peaks.
+- Visual inputs provide modest gains for some models, but also reveal their limitations in visual interpretation abilities, particularly in certain precise requirements, such as accurately identifying line peaks.
 - Adding environment photos for HAR tasks enhances classification accuracy, underscoring the value of multimodal context.
 
 It is worth noting that for both DTMF and HAR, traditional methods still outperform LLMs in terms of classification accuracy and computational efficiency. However, the goal of this project is not to outperform existing methods, but rather to explore whether LLMs have the capability to handle time-series data in a general and flexible way. LLMs deliver competitive performance without any task-specific fine-tuning, demonstrating the promising potential of general time series processing.
 
 Despite their potential, current LLMs still struggle with precise signal interpretation, domain-specific reasoning, and visual pattern recognition. Future research can explore methods for integrating domain-specific knowledge into LLMs more effectively, such as fine-tuning, retrieval-augmented generation, or embedding external knowledge bases. Additionally, improving models’ robustness to noise as well as enhancing their ability to process subtle signal features are critical. The SHL dataset used for HAR was released before the LLMs in this study were trained, so the models might already seen part of our testing data during training. It is worth reevaluating on fully unseen datasets to verify these findings.
 
-This project is a preliminary exploration of LLMs for time series tasks, but it still provides some interesting insights. Expanding benchmarks to include a border range of time series tasks (e.g., forecasting, anomaly detection, etc.) and evaluating models on cross-domain generalization could further deepen our understanding of LLMs’ potential in time series analysis.[^3]
+Though this project is just a preliminary exploration of LLMs for time series tasks, it still provides some interesting insights. Expanding benchmarks to include a border range of time series tasks (e.g., forecasting, anomaly detection, etc.) and evaluating models on cross-domain generalization could further deepen our understanding of LLMs’ potential in time series analysis.[^4]
 
 
-[^3]: ChatGPT is used to polish language in this report. All experimental results and analysis are original.
+[^4]: ChatGPT is used to polish language in this report. All experimental results and analysis are original.
 
 ## References
 <a id="1">[1]</a> Tuo An, Yunjiao Zhou, Han Zou, and Jianfei Yang. 2024. Iot-llm: Enhancing real-world IoT task reasoning with large language models. *arXiv preprint arXiv:2410.02429 (2024).*  
