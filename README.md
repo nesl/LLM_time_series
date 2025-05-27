@@ -25,24 +25,29 @@ The increasing prevalence of time-series data across domains, such as healthcare
     `python dtmf_run.py freq_text -m <model> -n <noise-type> [-g]`  
     Optional Arguments:  
     1. -g, --guide:  
-        Add step-by-step guidance if setted, otherwise no guidance will be added in the prompt
+        Add step-by-step guidance if set, otherwise no guidance will be added in the prompt
 1. **freq_plot**: Plot frequency-magnitude pairs into line plot for input  
     `python dtmf_run.py freq_plot -m <model> -n <noise-type> [-g -gr]`  
     Note that *freq_plot* only supports model GPT-4o and GPT-o1.  
     Optional Arguments:  
     1. -g, --guide:  
-        Add step-by-step guidance if setted, otherwise no guidance will be added in the prompt
+        Add step-by-step guidance if set, otherwise no guidance will be added in the prompt
     1. -gr, --grid:  
-        Add grid lines to the input plots is setted, otherwise input plots will not contain any grid lines
+        Add grid lines to the input plots is set, otherwise input plots will not contain any grid lines
 1. **freq_pair**: Input low/high frequency pair directly  
     `python dtmf_run.py freq_pair -m <model> -n <noise-type> [-map]`  
     Optional Arguments:  
     1. -map, --map:  
-        Provide the true DTMF frequency-key mapping in the map if setted.
+        Provide the true DTMF frequency-key mapping in the map if set.
 
 
 ### 2. Evaluation:
 `python dtmf_eval.py -r <result-save-filename> [optional arguments]`  
+This script calculates the overall accuracy and 3 break-down accuracies, unless *--no-detail-acc* is set. This script will also plot their confusion matrices. All evaluation results are saved under `./results/dtmf/` by default.
+1. Accuracy of recognized key comparing to the true key (Overall accuracy). Its confusion matrx filename is default to `conf_matrix_{result-save-filename}_overall.png`.
+1. Accuracy of detected low frequency comparing to the true low frequency. Its confusion matrx filename is default to `conf_matrix_{result-save-filename}_low_freq_{err-tolerance}Hz.png`.
+1. Accuracy of detected high frequency comparing to the true high frequency. Its confusion matrx filename is default to `conf_matrix_{result-save-filename}_high_freq_{err-tolerance}Hz.png`. The distribution plot of frequency detection error is saved in `freq_error_dist_{result-save-filename}.png`.
+1. Accuracy of recognized key comparing to the detected frequency. Its confusion matrx ifilename is default to `conf_matrix_{result-save-filename}_freq2key_{err-tolerance}Hz.png`.
 
 #### Required Argument:  
 1. -r, --result-save-filename:  
@@ -52,7 +57,7 @@ The increasing prevalence of time-series data across domains, such as healthcare
 1. -e, --err-tolerance:  
     An integer of error tolerance range for frequency detection (default: 15 for *freq_plot* results, 5 for results of all other input types)
 1. --no-detail-acc:  
-    Calculate step-by-step accuracies or not. If guidance is included, step-by-step accuracies will be calculated by default, set --no-detail-acc to **disable** this feature. Otherwise only overall accuracy will be calculated, regardless of whether this argument is setted or not.
+    Calculate step-by-step accuracies or not. If guidance is included, step-by-step accuracies will be calculated by default, set --no-detail-acc to **disable** this feature. Otherwise only overall accuracy will be calculated, regardless of whether this argument is set or not.
 
 
 ## Human Activity Recognition (HAR)
@@ -85,10 +90,12 @@ The increasing prevalence of time-series data across domains, such as healthcare
 1. -f, --frequency:  
     Sampling frequency in Hz (default: 10 for *time_text_fewshot* and *time_text_description*, otherwise 100)
 1. -r, --result-save-filename:  
-    The file name to save results. Will be default to `results_{model}_User1_220617_{4*data-num}_{location}_{input}_4class.csv` if not setted.
+    The file name to save results. Will be default to `results_{model}_User1_220617_{4*data-num}_{location}_{input}_4class.csv` if not set.
 
 ### 2. Evaluation:
 `python shl_eval.py -r <result-save-filename>`  
+
+This script calculates the recognition accuracy, and plot the confusion matrix. The confusion matrix is saved as `./results/HAR/conf_matrix_{result-save-filename}.png` by default.  
 
 #### Required Argument:  
 1. -r, --result-save-filename:  
