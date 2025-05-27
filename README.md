@@ -4,11 +4,11 @@
 ### Abstract
 The increasing prevalence of time-series data across domains, such as healthcare, finance, and IoT, has driven the need for flexible and generalizable modeling approaches. Traditional time-series analysis relies heavily on supervised models, which suffer from data scarcity and high deployment costs. This project explores the potential of Large Language Models (LLMs) as general-purpose few-shot learners for time-series classification tasks. Specifically, we investigate how different input representations affect LLM performance in two representative tasks: Dual-Tone Multi-Frequency (DTMF) signal decoding and Human Activity Recognition (HAR). By comparing text-based, visual, and multimodal inputs across models including GPT-4o, GPT-o1, and DeepSeek-R1, we assess their reasoning capabilities and robustness. Our findings show that while LLMs demonstrate potential, performance significantly varies depending on input representation and model type. In DTMF, GPT-o1 and DeepSeek-R1 consistently outperforms GPT-4o, particularly in tasks requiring text-based numerical reasoning. In HAR, visualization aids interpretation, and few-shot learning significantly boosts performance. However, challenges remain, especially in precise plot reading, domain knowledge retrieval (GPT-4o), and multimodal integration. Further domain-specific enhancements and robust representation strategies are heavily required for current LLMs.
 
-# DTMF
-## 1. Run the experiments:
+## DTMF
+### 1. Run the experiments:
 `python dtmf_run.py <subcommand> -m <model> -n <noise-type> [optional arguments]`
 
-### Required Arguments
+#### Required Arguments
 1. -m, --model:  
     Choose the model (LLM) for this task. Support models: GPT-4o, GPT-o1, DppeSeek-R1
     - Options: gpt-4o, o1-2024-12-17, deepseek-reasoner
@@ -16,11 +16,11 @@ The increasing prevalence of time-series data across domains, such as healthcare
     Choose input data noise type. 'clean' means using data generated with exactly DTMF frequencies, 'noise' means using data generated with added noise.
     - Options: noise, clean
 
-### Optional Arguments
+#### Optional Arguments
 1. -r, --result-save-filename:  
     The file name to save results. (default: `results_{model}_{noise-type}_{subcommand}[_{optional arguments}].csv`)
 
-### Subcommands (Input Types)
+#### Subcommands (Input Types)
 1. **freq_text**: Raw frequency-magnitude text input  
     `python dtmf_run.py freq_text -m <model> -n <noise-type> [-g]`  
     Optional Arguments:  
@@ -41,25 +41,25 @@ The increasing prevalence of time-series data across domains, such as healthcare
         Provide the true DTMF frequency-key mapping in the map if setted.
 
 
-## 2. Evaluation:
+### 2. Evaluation:
 `python dtmf_eval.py -r <result-save-filename> [optional arguments]`  
 
-### Required Argument:  
+#### Required Argument:  
 1. -r, --result-save-filename:  
     Results file name used in `dtmf_run.py`. A prefix of "result_" and a file extension of ".csv" will be automatically added.  
 
-### Optional Arguments:
+#### Optional Arguments:
 1. -e, --err-tolerance:  
     An integer of error tolerance range for frequency detection (default: 15 for *freq_plot* results, 5 for results of all other input types)
 1. --no-detail-acc:  
     Calculate step-by-step accuracies or not. If guidance is included, step-by-step accuracies will be calculated by default, set --no-detail-acc to **disable** this feature. Otherwise only overall accuracy will be calculated, regardless of whether this argument is setted or not.
 
 
-# Human Activity Recognition (HAR)
-## 1. Run the experiments:
+## Human Activity Recognition (HAR)
+### 1. Run the experiments:
 `python shl_run.py -m <model> -i <input_type> [optional arguments]`
 
-### Required Arguments
+#### Required Arguments
 1. -m, --model:  
     Choose the model (LLM) for this task. Support models: GPT-4o, GPT-o1, DppeSeek-R1
     - Options: gpt-4o, o1-2024-12-17, deepseek-reasoner
@@ -75,7 +75,7 @@ The increasing prevalence of time-series data across domains, such as healthcare
 	    - time_plot_env: Line plot + environment photo taken when the activity is happening
 	    - env_only: Environment photo only
 
-### Optional Arguments
+#### Optional Arguments
 1. -dn, --data-num:  
     Number of test samples per class (default: 30)
 1. -df, --data-folder:  
@@ -87,9 +87,9 @@ The increasing prevalence of time-series data across domains, such as healthcare
 1. -r, --result-save-filename:  
     The file name to save results. Will be default to `results_{model}_User1_220617_{4*data-num}_{location}_{input}_4class.csv` if not setted.
 
-## 2. Evaluation:
+### 2. Evaluation:
 `python shl_eval.py -r <result-save-filename>`  
 
-### Required Argument:  
+#### Required Argument:  
 1. -r, --result-save-filename:  
     Results file name used in `shl_run.py`. A prefix of "result_" and a file extension of ".csv" will be automatically added. This filename will also be used to generate the confusion matrix file name.  
