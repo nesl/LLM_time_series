@@ -123,7 +123,7 @@ def cal_acc_freqs_detect(result_save_filename, err_tolerance):
             phone_number = match.group(1)
             tone_index = int(match.group(2))
             true_number = phone_number[tone_index - 1]
-            freqs_df = pd.read_csv(f"/home/yihan/code/datasets/dtmf/dtmf_noise_12/{phone_number}_freqs_clean.csv")
+            freqs_df = pd.read_csv(f"./datasets/dtmf/dtmf_noise_12/{phone_number}_freqs_clean.csv")
             freqs_row = freqs_df.iloc[tone_index - 1]
             true_low_freq, true_high_freq = int(freqs_row['Freq1']), int(freqs_row['Freq2'])
 
@@ -271,9 +271,9 @@ def cal_acc_freq2key(result_save_filename, err_tolerance):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-r', '--result-save-filename', type=str, help="Results file name stem. A prefix of \"result_\" and a file extension of \".csv\" will be automatically added.")
+    parser.add_argument('-r', '--result-save-filename', type=str, required=True, help="Results file name stem. A prefix of \"result_\" and a file extension of \".csv\" will be automatically added.")
     parser.add_argument('-e', '--err-tolerance', type=int, help="Error tolerance range for frequency detection")
-    parser.add_argument('--no-detail-acc', dest='detail_acc', action="store_false", help="Calculate step-by-step accuracies or not. If guidance is included, step-by-step accuracies will be calculated by default, otherwise only overall accuracy will be calculated. Set --no-detail-acc to disable this feature.")
+    parser.add_argument('--no-detail-acc', dest='detail_acc', action="store_false", help="Calculate step-by-step accuracies or not. If guidance is included, step-by-step accuracies will be calculated by default, set --no-detail-acc to disable this feature. Otherwise only overall accuracy will be calculated, regardless of whether this argument is setted or not.")
     args = parser.parse_args()
 
     if args.err_tolerance is None:

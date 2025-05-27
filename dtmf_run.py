@@ -16,7 +16,7 @@ from config.prompt_config import PromptConfigDTMF
 # OpenAI API Key (Ensure you set this in your environment variables)
 CLIENT = None
 PROMPT_CONFIG_DTMF = PromptConfigDTMF()
-DATA_FOLDER = "/home/yihan/code/datasets/dtmf/"
+DATA_FOLDER = "./datasets/dtmf/"
 
 def save_result(batch_results: list, result_save_path: str):
     batch_df = pd.DataFrame(batch_results)
@@ -323,7 +323,7 @@ if __name__ == "__main__":
 
     # freq_pair
     parser_pair =subparsers.add_parser("freq_pair", parents=[base_parser], help="Run experiments given low- and high-frequency pair")
-    parser_pair.add_argument('-map', '--map', action='store_true', help="Add true DTMF freqwuency-key map or not")
+    parser_pair.add_argument('-map', '--map', action='store_true', help="Add true DTMF frequency-key map or not")
     parser_pair.set_defaults(func=freq_pair)
 
     args = parser.parse_args()

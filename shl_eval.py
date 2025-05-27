@@ -6,10 +6,10 @@ import matplotlib.pyplot as plt
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-r', '--result-save-filename', type=str, required=True, help="Results file name stem. Please exclude the prefix of \"result_\" and the file extension of \".csv\". This stem will also be used to generate the confusion matrix file name.") # e.g., args.result_save_filename = "gpto1_User1_220617_120_Torso_env_only_4class"
+parser.add_argument('-r', '--result-save-filename', type=str, required=True, help="Results file name stem. A prefix of "result_" and a file extension of ".csv" will be automatically added. This filename will also be used to generate the confusion matrix file name.") # e.g., args.result_save_filename = "gpto1_User1_220617_120_Torso_env_only_4class"
 args = parser.parse_args()
 
-file_path = f"/home/yihan/code/results/HAR/results_{args.result_save_filename}.csv"
+file_path = f"./results/HAR/results_{args.result_save_filename}.csv"
 df = pd.read_csv(file_path)
 
 class_labels = ['Still', 'Walking', 'Run', 'Car']
@@ -40,4 +40,4 @@ plt.xlabel("Predicted Label")
 plt.ylabel("True Label")
 plt.title(f"Confusion Matrix (Acc: {accuracy:.3f})")
 plt.show()
-plt.savefig(f'/home/yihan/code/results/HAR/conf_matrix_{args.result_save_filename}.png')
+plt.savefig(f'./results/HAR/conf_matrix_{args.result_save_filename}.png')

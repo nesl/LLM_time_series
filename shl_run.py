@@ -363,8 +363,8 @@ if __name__ == "__main__":
     )
     parser.add_argument('-dn', '--data-num', type=int, default=30, help="Number of test data for each class")
     parser.add_argument('-df', '--data-folder', type=str, default='./datasets/SHL_processed/User1/220617/Torso_video/', help="Data folder path.")
-    parser.add_argument('-l', '--location', type=str, default='Torso', help="Location of IMU data collection smartphone.")
-    parser.add_argument('-f', '--frequency', type=int, help="sample Frequency (unit: Hz). Default to 10 if --input is `time_text_fewshot`, otherwise default to 100.")
+    parser.add_argument('-l', '--location', type=str, default='Torso', help="The body location on which the smartphone used for IMU data collection is placed.")
+    parser.add_argument('-f', '--frequency', type=int, help="sample Frequency (unit: Hz). Default to 10 if --input is `time_text_fewshot` or `time_text_description`, otherwise default to 100.")
     parser.add_argument('-r', '--result-save-filename', type=str, default=None, help="File name to save results.")
     args = parser.parse_args()
 
